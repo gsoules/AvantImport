@@ -1,6 +1,6 @@
 # AvantImport
 
-AvantImport is a derivation of [CSV Import +](https://github.com/Daniel-KM/Omeka-plugin-CsvImportPlus) for use
+AvantImport is a derivation of [CSV Import+](https://github.com/Daniel-KM/Omeka-plugin-CsvImportPlus) for use
 with the Digital Archive.
 
 ## Warning
