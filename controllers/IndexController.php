@@ -71,6 +71,7 @@ class AvantImport_IndexController extends Omeka_Controller_AbstractActionControl
         $this->session->enclosure = '"';
         $this->session->columnNames = $file->getColumnNames();
         $this->session->columnExamples = $file->getColumnExamples();
+        $this->session->columnMapping = $form->getValue('column_mapping');
 
         // A bug appears when examples contain UTF-8 characters like 'ГЧ„чŁ'.
         // The bug is only here, not during import of characters into database.
@@ -93,6 +94,7 @@ class AvantImport_IndexController extends Omeka_Controller_AbstractActionControl
         set_option(AvantImport_ColumnMap_File::FILE_DELIMITER_OPTION_NAME, $this->session->fileDelimiter);
         set_option('avant_import_html_elements', $this->session->elementsAreHtml);
         set_option('avant_import_extra_data', $this->session->containsExtraData);
+        set_option('avant_import_column_mapping', $this->session->columnMapping);
 
         if ($this->session->containsExtraData == 'manual') {
             $this->_helper->redirector->goto('map-columns');

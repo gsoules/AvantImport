@@ -33,6 +33,12 @@ class AvantImport_Form_Main extends Omeka_Form
             'description' => __('Check to make imported items public by default.'),
         ));
 
+        $this->addElement('textarea', 'column_mapping', array(
+            'label' => __('Column mappings'),
+            'description' => __('Map CSV columns to Omeka elements'),
+            'value' => get_option('avant_import_column_mapping')
+        ));
+
         $this->addDisplayGroup(
             array(
                 'csv_file',
@@ -42,6 +48,7 @@ class AvantImport_Form_Main extends Omeka_Form
 
         $this->addDisplayGroup(
             array(
+                'column_mapping',
                 'records_are_public'
             ),
             'default_values'

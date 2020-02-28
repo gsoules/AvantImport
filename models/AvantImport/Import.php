@@ -1431,41 +1431,22 @@ class AvantImport_Import extends Omeka_Record_AbstractRecord implements Zend_Acl
         }
 
         foreach ($fileUrls as $fileUrl) {
-            // Prepend the import folder path to the filename so that the CSV doesn't have to contain filename paths.
+            $transferStrategy = 'Filesystem';
             $adapterOptions = Zend_Registry::get('storage')->getAdapter()->getOptions();
             $importFolderPath = $adapterOptions['localDir'] . '/import/';
             $fileUrl = $importFolderPath . $fileUrl;
-
-            // Set the transfer strategy according to file name.
             $parsedFileUrl = parse_url($fileUrl);
-            if (!isset($parsedFileUrl['scheme']) || $parsedFileUrl['scheme'] == 'file') {
-                $transferStrategy = 'Filesystem';
-                $fileUrlOriginal = $fileUrl;
-                $fileUrl = $parsedFileUrl['path'];
-                if (!$this->_allowLocalPath($fileUrl)) {
-                    $msg = 'Local paths are not allowed by the administrator (%s) [%s].';
-                    $this->_log($msg, array($fileUrlOriginal, !isset($parsedFileUrl['scheme']) ? 'no scheme' : 'file scheme'), Zend_Log::ERR);
-                    if ($itemDelete) {
-                        $item->delete();
-                    }
-                    release_object($item);
-                    return false;
-                }
-            }
-            else {
-                $transferStrategy = 'Url';
-                $fileUrl = $this->_rawUrlEncode($fileUrl);
-            }
+            $fileUrlPath = $parsedFileUrl['path'];
 
             // Import the file and attach it to the item.
             try {
                 $files = insert_files_for_item($item,
                     $transferStrategy,
-                    $fileUrl,
+                    $fileUrlPath,
                     array('ignore_invalid_files' => false));
             } catch (Omeka_File_Ingest_InvalidException $e) {
                 $msg = 'Invalid file URL "%s": %s';
-                $this->_log($msg, array($fileUrl, $e->getMessage()), Zend_Log::ERR);
+                $this->_log($msg, array($fileUrlPath, $e->getMessage()), Zend_Log::ERR);
                 if ($itemDelete) {
                     $item->delete();
                 }
@@ -1473,7 +1454,7 @@ class AvantImport_Import extends Omeka_Record_AbstractRecord implements Zend_Acl
                 return false;
             } catch (Omeka_File_Ingest_Exception $e) {
                 $msg = 'Could not import file "%s": %s';
-                $this->_log($msg, array($fileUrl, $e->getMessage()), Zend_Log::ERR);
+                $this->_log($msg, array($fileUrlPath, $e->getMessage()), Zend_Log::ERR);
                 if ($itemDelete) {
                     $item->delete();
                 }
