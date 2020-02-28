@@ -28,95 +28,9 @@ class AvantImport_Form_Main extends Omeka_Form
 
         $this->_addFileElement();
 
-        $this->_addColumnDelimiterElement();
-        $this->_addEnclosureElement();
-        $this->_addElementDelimiterElement();
-        $this->_addTagDelimiterElement();
-        $this->_addFileDelimiterElement();
-
-        $values = get_table_options('ItemType', __('No default item type'));
-        $this->addElement('select', 'item_type_id', array(
-            'label' => __('Item type'),
-            'multiOptions' => $values,
-        ));
-
-        $values = get_table_options('Collection', __('No default collection'));
-        $this->addElement('select', 'collection_id', array(
-            'label' => __('Collection'),
-            'multiOptions' => $values,
-        ));
-
         $this->addElement('checkbox', 'records_are_public', array(
-            'label' => __('Make records public'),
-            'description' => __('Check to make records (items or collections) public by default.'),
-        ));
-
-        $this->addElement('checkbox', 'records_are_featured', array(
-            'label' => __('Feature records'),
-            'description' => __('Check to make records (items or collections) featured by default.'),
-        ));
-
-        $this->addElement('checkbox', 'elements_are_html', array(
-            'label' => __('Elements are html'),
-            'description' => __('Set default format of all imported elements as html, else raw text.'),
-            'value' => get_option('avant_import_html_elements'),
-        ));
-
-        $identifierField = get_option('avant_import_identifier_field');
-        if (!empty($identifierField) && $identifierField != 'table id' && $identifierField != 'internal id') {
-            $currentIdentifierField = $this->_getElementFromIdentifierField($identifierField);
-            if ($currentIdentifierField) {
-                $identifierField = $currentIdentifierField->id;
-            }
-        }
-        $values = get_table_options('Element', null, array(
-            'record_types' => array('All'),
-            'sort' => 'alphaBySet',
-        ));
-        $values = array(
-            '' => __('No default identifier field'),
-            'table id' => __('Table identifier'),
-            'internal id' => __('Internal id'),
-            // 'filename' => __('Imported filename (to import files only)'),
-            // 'original filename' => __('Original filename (to import files only)'),
-        ) + $values;
-        $this->addElement('select', 'identifier_field', array(
-            'label' => __('Identifier field (required)'),
-            'description' => __('The default identifier should be available for all record types that are currently imported in the file.'),
-            'multiOptions' => $values,
-            'value' => $identifierField,
-        ));
-
-        $this->addElement('select', 'action', array(
-            'label' => __('Action'),
-            'multiOptions' => label_table_options(array(
-                AvantImport_ColumnMap_Action::ACTION_UPDATE_ELSE_CREATE
-                    => __('Update the record if it exists, else create one'),
-                AvantImport_ColumnMap_Action::ACTION_CREATE
-                    => __('Create a new record'),
-                AvantImport_ColumnMap_Action::ACTION_UPDATE
-                    => __('Update values of specific fields'),
-                AvantImport_ColumnMap_Action::ACTION_ADD
-                    => __('Add values to specific fields'),
-                AvantImport_ColumnMap_Action::ACTION_REPLACE
-                    => __('Replace values of all fields'),
-                AvantImport_ColumnMap_Action::ACTION_DELETE
-                    => __('Delete the record'),
-                AvantImport_ColumnMap_Action::ACTION_SKIP
-                    => __('Skip process of the record'),
-            ), __('No default action')),
-        ));
-
-       $this->addElement('select', 'contains_extra_data', array(
-            'label' => __('Contains extra data'),
-            'description' => __('Other columns can be used as values for non standard data.'),
-            'multiOptions' =>array(
-                'no' => __('No, so unrecognized column names will be noticed'),
-                'manual' => __('Perhaps, so the mapping should be done manually'),
-                'ignore' => __('Ignore unrecognized column names'),
-                'yes' => __("Yes, so column names won't be checked"),
-            ),
-            'value' => get_option('avant_import_extra_data'),
+            'label' => __('Make items public'),
+            'description' => __('Check to make imported items public by default.'),
         ));
 
         $this->addDisplayGroup(
@@ -128,48 +42,10 @@ class AvantImport_Form_Main extends Omeka_Form
 
         $this->addDisplayGroup(
             array(
-                'column_delimiter_name',
-                'column_delimiter',
-                'enclosure_name',
-                'enclosure',
-                'element_delimiter_name',
-                'element_delimiter',
-                'tag_delimiter_name',
-                'tag_delimiter',
-                'file_delimiter_name',
-                'file_delimiter',
+                'records_are_public'
             ),
-            'csv_format',
-            array(
-                'legend' => __('CSV format'),
-                'description' => __('Set delimiters and enclosure used in the file.'),
-        ));
-
-        $this->addDisplayGroup(
-            array(
-                'item_type_id',
-                'collection_id',
-                'records_are_public',
-                'records_are_featured',
-                'elements_are_html',
-            ),
-            'default_values',
-            array(
-                'legend' => __('Default values'),
-                'description' => __("Set the default values to use when the column doesn't exist."),
-        ));
-
-        $this->addDisplayGroup(
-            array(
-                'identifier_field',
-                'action',
-                'contains_extra_data',
-            ),
-            'import_process',
-            array(
-                'legend' => __('Process'),
-                'description' => __('Set features used to process the file.'),
-        ));
+            'default_values'
+        );
 
         $submit = $this->createElement(
             'submit', 'submit',
@@ -456,15 +332,6 @@ class AvantImport_Form_Main extends Omeka_Form
                 . 'allowed by the server. Please upload a file smaller '
                 . 'than %s.', $maxSize));
             $isValid = false;
-        }
-
-        // Check custom delimiters.
-        if ($post['column_delimiter_name'] == 'custom') {
-            if (strlen($post['column_delimiter']) != 1) {
-                $this->column_delimiter->addError(
-                    __('The custom delimiter you choose cannot be whitespace and must be one character long.'));
-                $isValid = false;
-            }
         }
 
         if (!$isValid) {
