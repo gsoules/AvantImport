@@ -56,41 +56,31 @@ class AvantImport_IndexController extends Omeka_Controller_AbstractActionControl
             return;
         }
 
-        $identifierField = $this->_elementNameFromPost($form->getValue('identifier_field'));
-
         $this->session->setExpirationHops(3);
         $this->session->originalFilename = $_FILES['csv_file']['name'];
         $this->session->filePath = $filePath;
-        $this->session->action = $form->getValue('action');
-        $this->session->identifierField = $identifierField;
-        $this->session->itemTypeId = $form->getValue('item_type_id');
-        $this->session->collectionId = $form->getValue('collection_id');
+        $this->session->action = "";
+        $this->session->identifierField = "Dublin Core:Identifier";
+        $this->session->itemTypeId = "";
+        $this->session->collectionId = "";
         $this->session->recordsArePublic = $form->getValue('records_are_public');
-        $this->session->recordsAreFeatured = $form->getValue('records_are_featured');
-        $this->session->elementsAreHtml = $form->getValue('elements_are_html');
-        $this->session->containsExtraData = $form->getValue('contains_extra_data');
-        $this->session->columnDelimiter = $columnDelimiter;
-        $this->session->enclosure = $enclosure;
+        $this->session->recordsAreFeatured = "0";
+        $this->session->elementsAreHtml = "0";
+        $this->session->containsExtraData = "manual";
+        $this->session->columnDelimiter = ",";
+        $this->session->enclosure = '"';
         $this->session->columnNames = $file->getColumnNames();
         $this->session->columnExamples = $file->getColumnExamples();
+
         // A bug appears when examples contain UTF-8 characters like 'ГЧ„чŁ'.
         // The bug is only here, not during import of characters into database.
         foreach ($this->session->columnExamples as &$value) {
             $value = iconv('ISO-8859-15', 'UTF-8', @iconv('UTF-8', 'ISO-8859-15' . '//IGNORE', $value));
         }
 
-        $elementDelimiterName = $form->getValue('element_delimiter_name');
-        $this->session->elementDelimiter = isset($delimitersList[$elementDelimiterName])
-            ? $delimitersList[$elementDelimiterName]
-            : $form->getValue('element_delimiter');
-        $tagDelimiterName = $form->getValue('tag_delimiter_name');
-        $this->session->tagDelimiter = isset($delimitersList[$tagDelimiterName])
-            ? $delimitersList[$tagDelimiterName]
-            : $form->getValue('tag_delimiter');
-        $fileDelimiterName = $form->getValue('file_delimiter_name');
-        $this->session->fileDelimiter = isset($delimitersList[$fileDelimiterName])
-            ? $delimitersList[$fileDelimiterName]
-            : $form->getValue('file_delimiter');
+        $this->session->elementDelimiter = "";
+        $this->session->tagDelimiter = ",";
+        $this->session->fileDelimiter = ",";
 
         $this->session->ownerId = $this->getInvokeArg('bootstrap')->currentuser->id;
 
