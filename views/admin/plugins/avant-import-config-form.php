@@ -17,12 +17,12 @@ echo '<br/>';
                 <?php
                     $currentRoles = unserialize(get_option('avant_import_allow_roles')) ?: array();
                     $userRoles = get_user_roles();
-                    echo '<ul>';
+                    echo '<ul style="padding-left: 0;">';
                     foreach ($userRoles as $role => $label) {
-                        echo '<li>';
+                        echo '<li style="list-style: none;">';
                         echo $this->formCheckbox('avant_import_allow_roles[]', $role,
                             array('checked' => in_array($role, $currentRoles) ? 'checked' : ''));
-                        echo $label;
+                        echo '&nbsp;&nbsp;' . $label;
                         echo '</li>';
                     }
                     echo '</ul>';
