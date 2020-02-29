@@ -43,6 +43,8 @@ class AvantImport_Form_Mapping extends Omeka_Form
         $mappings = ImportConfig::getOptionDataForColumnMappingField();
 
         $elementsByElementSetName = $this->_getElementPairs(true);
+        $elementsByElementSetName[0] = '<files>';
+
         $specialValues = label_table_options($this->_specialValues);
 
         $elementsByElementSetName = label_table_options($elementsByElementSetName);
@@ -50,10 +52,12 @@ class AvantImport_Form_Mapping extends Omeka_Form
         foreach ($this->_columnNames as $index => $colName)
         {
             $columnIsMapped = false;
-            foreach ($mappings as $mapping)
+            $elementId = "";
+            foreach ($mappings as $id => $mapping)
             {
                 if ($colName == $mapping['column'])
                 {
+                    $elementId = $id == '<files>' ? 0 : $id;
                     $columnIsMapped = true;
                     break;
                 }
@@ -62,6 +66,7 @@ class AvantImport_Form_Mapping extends Omeka_Form
             if (!$columnIsMapped)
                 continue;
 
+            // Add the element selector.
             $rowSubForm = new Zend_Form_SubForm();
             $selectElement = $rowSubForm->createElement('select',
                 'element',
@@ -71,10 +76,11 @@ class AvantImport_Form_Mapping extends Omeka_Form
                     'multiple' => false, // see ZF-8452
             ));
             $selectElement->setIsArray(true);
-            $selectElement->setValue($this->_getElementIdFromColumnName($colName));
+            $selectElement->setValue($elementId);
 
             $rowSubForm->addElement($selectElement);
 
+            // Add the special selector.
             $specialElement = $rowSubForm->createElement('select',
                 'special',
                 array(
@@ -82,7 +88,6 @@ class AvantImport_Form_Mapping extends Omeka_Form
                     'multiOptions' => $specialValues,
                     'multiple' => false, // see ZF-8452
             ));
-
             $specialElement->setValue($this->_getSpecialValue($colName));
             $rowSubForm->addElement($specialElement);
 
