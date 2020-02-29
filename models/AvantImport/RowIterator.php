@@ -77,6 +77,13 @@ class AvantImport_RowIterator implements SeekableIterator
         // First row should always be the header.
         $colRow = $this->_getNextRow();
         $this->_colNames = array_map("trim", array_keys(array_flip($colRow)));
+
+        // Remove the UTF-8 BOM if it exists. Some applications like Excel prepend a Byte Order Mark '\uFEFF'
+        // to the beginning of a CSV file when saving it as UTF-8. Even though you can't see it, not even in the
+        // PHP debugger, if it's there, it adds 3 bytes to the string and causes string comparisons to fail.
+        $column0 = str_replace("\xEF\xBB\xBF",'', $this->_colNames[0]);
+        $this->_colNames[0] = $column0;
+
         $this->_colCount = count($colRow);
         $uniqueColCount = count($this->_colNames);
         if ($uniqueColCount != $this->_colCount) {

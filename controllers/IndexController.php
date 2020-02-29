@@ -94,7 +94,6 @@ class AvantImport_IndexController extends Omeka_Controller_AbstractActionControl
         set_option(AvantImport_ColumnMap_File::FILE_DELIMITER_OPTION_NAME, $this->session->fileDelimiter);
         set_option('avant_import_html_elements', $this->session->elementsAreHtml);
         set_option('avant_import_extra_data', $this->session->containsExtraData);
-        set_option('avant_import_column_mapping', $this->session->columnMapping);
 
         if ($this->session->containsExtraData == 'manual') {
             $this->_helper->redirector->goto('map-columns');

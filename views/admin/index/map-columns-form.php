@@ -6,12 +6,10 @@
     <table id="column-mappings" class="simple">
     <thead>
     <tr>
-        <th><?php echo __('Column header'); ?></th>
-        <th><?php echo __('Example from CSV File'); ?></th>
-        <th><?php echo __('Map To Element'); ?></th>
-        <th><?php echo __('Use HTML?'); ?></th>
+        <th><?php echo __('CSV column name'); ?></th>
+        <th><?php echo __('First data row from CSV file'); ?></th>
+        <th><?php echo __('Map to element'); ?></th>
         <th><?php echo __('Special values'); ?></th>
-        <th><?php echo __('Extra data?'); ?></th>
     </tr>
     </thead>
     <tbody>

@@ -40,12 +40,28 @@ class AvantImport_Form_Mapping extends Omeka_Form
         $this->setAttrib('id', 'avantimport-mapping');
         $this->setMethod('post');
 
+        $mappings = ImportConfig::getOptionDataForColumnMappingField();
+
         $elementsByElementSetName = $this->_getElementPairs(true);
         $specialValues = label_table_options($this->_specialValues);
 
         $elementsByElementSetName = label_table_options($elementsByElementSetName);
 
-        foreach ($this->_columnNames as $index => $colName) {
+        foreach ($this->_columnNames as $index => $colName)
+        {
+            $columnIsMapped = false;
+            foreach ($mappings as $mapping)
+            {
+                if ($colName == $mapping['column'])
+                {
+                    $columnIsMapped = true;
+                    break;
+                }
+            }
+
+            if (!$columnIsMapped)
+                continue;
+
             $rowSubForm = new Zend_Form_SubForm();
             $selectElement = $rowSubForm->createElement('select',
                 'element',
@@ -58,9 +74,7 @@ class AvantImport_Form_Mapping extends Omeka_Form
             $selectElement->setValue($this->_getElementIdFromColumnName($colName));
 
             $rowSubForm->addElement($selectElement);
-            $rowSubForm->addElement('checkbox', 'html', array('value' => $this->_elementsAreHtml));
-            // If import type is File, add checkbox for file url only because
-            // files can't get tags and we just need the url.
+
             $specialElement = $rowSubForm->createElement('select',
                 'special',
                 array(
@@ -68,12 +82,9 @@ class AvantImport_Form_Mapping extends Omeka_Form
                     'multiOptions' => $specialValues,
                     'multiple' => false, // see ZF-8452
             ));
-            // $specialElement->setIsArray(true);
+
             $specialElement->setValue($this->_getSpecialValue($colName));
             $rowSubForm->addElement($specialElement);
-            $rowSubForm->addElement('checkbox', 'extra_data', array(
-                'label' => __('Extra data'),
-            ));
 
             $this->_setSubFormDecorators($rowSubForm);
             $this->addSubForm($rowSubForm, "row$index");

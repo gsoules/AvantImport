@@ -30,13 +30,7 @@ class AvantImport_Form_Main extends Omeka_Form
 
         $this->addElement('checkbox', 'records_are_public', array(
             'label' => __('Make items public'),
-            'description' => __('Check to make imported items public by default.'),
-        ));
-
-        $this->addElement('textarea', 'column_mapping', array(
-            'label' => __('Column mappings'),
-            'description' => __('Map CSV columns to Omeka elements'),
-            'value' => get_option('avant_import_column_mapping')
+            'description' => __('Check to make imported items public'),
         ));
 
         $this->addDisplayGroup(
@@ -99,7 +93,7 @@ class AvantImport_Form_Main extends Omeka_Form
         $filter = new Zend_Filter_File_Rename($this->_fileDestinationDir
                     . '/' . md5(mt_rand() + microtime(true)));
         $this->addElement('file', 'csv_file', array(
-            'label' => __('Upload CSV file'),
+            'label' => __('CSV file'),
             'required' => true,
             'validators' => $fileValidators,
             'destination' => $this->_fileDestinationDir,

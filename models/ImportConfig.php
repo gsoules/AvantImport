@@ -1,6 +1,6 @@
 <?php
 
-define('CONFIG_LABEL_COLUMN_MAPPING', __('Mapping'));
+define('CONFIG_LABEL_COLUMN_MAPPING', __('Mappings'));
 
 class ImportConfig extends ConfigOptions
 {

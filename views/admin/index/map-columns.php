@@ -3,8 +3,7 @@
 ?>
 <?php echo common('avantimport-nav'); ?>
 <div id="primary">
-    <h2><?php echo __('Step 2: Map columns to elements, tags, or files'); ?></h2>
-    <p><?php echo __('Csv file: %s', $this->csvFile); ?></p>
+    <h2><?php echo __("Step 2: Map '%s' columns to elements or files", $this->csvFile); ?></h2>
     <?php echo flash(); ?>
     <?php echo $this->form; ?>
 </div>
