@@ -40,17 +40,20 @@ class AvantImport_Form_Mapping extends Omeka_Form
         $this->setAttrib('id', 'avantimport-mapping');
         $this->setMethod('post');
 
+        // Get a sorted list of elements that are in use by this installation.
+        $unusedElementsData = CommonConfig::getOptionDataForUnusedElements();
+        $elementsByElementSetName = $this->_getElementPairs(true);
+        $elementsInUse = array_diff($elementsByElementSetName, $unusedElementsData);
+        $elementsInUse[0] = '<files>';
+        asort($elementsInUse);
+
+        // Get the CSV column to element mappings that are specified on the AvantImport configuration page.
         $mappings = ImportConfig::getOptionDataForColumnMappingField();
 
-        $elementsByElementSetName = $this->_getElementPairs(true);
-        $elementsByElementSetName[0] = '<files>';
-
-        $specialValues = label_table_options($this->_specialValues);
-
-        $elementsByElementSetName = label_table_options($elementsByElementSetName);
-
+        // Create the Step 2 page form that lets the user verify that the mappings are correct.
         foreach ($this->_columnNames as $index => $colName)
         {
+            // Determine if this column is mapped to an element or will be used to contain a list of file names.
             $columnIsMapped = false;
             $elementId = "";
             foreach ($mappings as $id => $mapping)
@@ -62,17 +65,16 @@ class AvantImport_Form_Mapping extends Omeka_Form
                     break;
                 }
             }
-
             if (!$columnIsMapped)
                 continue;
 
-            // Add the element selector.
+            // The column maps to an element. Add the element selector to the form with the column selected.
             $rowSubForm = new Zend_Form_SubForm();
             $selectElement = $rowSubForm->createElement('select',
                 'element',
                 array(
                     'class' => 'map-element',
-                    'multiOptions' => $elementsByElementSetName,
+                    'multiOptions' => $elementsInUse,
                     'multiple' => false, // see ZF-8452
             ));
             $selectElement->setIsArray(true);
@@ -83,6 +85,7 @@ class AvantImport_Form_Mapping extends Omeka_Form
             $this->addSubForm($rowSubForm, "row$index");
         }
 
+        // Add the Submit button to the form.
         $this->addElement('submit',
             'submit',
             array(
