@@ -173,6 +173,8 @@ class AvantImportPlugin extends Omeka_Plugin_AbstractPlugin
                 set_option($optionKey, $post[$optionKey]);
             }
         }
+
+        ImportConfig::saveConfiguration();
     }
 
     /**
@@ -232,7 +234,7 @@ class AvantImportPlugin extends Omeka_Plugin_AbstractPlugin
     public function filterAdminNavigationMain($nav)
     {
         $nav[] = array(
-            'label' => __('Import CSV'),
+            'label' => __('AvantImport'),
             'uri' => url('avant-import'),
             'resource' => 'AvantImport_Index',
             'privilege' => 'index',
