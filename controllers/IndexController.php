@@ -56,6 +56,20 @@ class AvantImport_IndexController extends Omeka_Controller_AbstractActionControl
             return;
         }
 
+        $columnNamesFromCsvFile = $file->getColumnNames();
+        $columnMappings = ImportConfig::getOptionDataForColumnMappingField();
+        foreach ($columnMappings as $mapping)
+        {
+            foreach ($columnNamesFromCsvFile as $csvColumnName)
+            {
+                if ($mapping['column'] == $csvColumnName)
+                {
+                    $importableColumnName[] = $csvColumnName;
+                    break;
+                }
+            }
+        }
+
         $this->session->setExpirationHops(3);
         $this->session->originalFilename = $_FILES['csv_file']['name'];
         $this->session->filePath = $filePath;
@@ -69,7 +83,7 @@ class AvantImport_IndexController extends Omeka_Controller_AbstractActionControl
         $this->session->containsExtraData = "manual";
         $this->session->columnDelimiter = ",";
         $this->session->enclosure = '"';
-        $this->session->columnNames = $file->getColumnNames();
+        $this->session->columnNames = $importableColumnName;
         $this->session->columnExamples = $file->getColumnExamples();
         $this->session->columnMapping = $form->getValue('column_mapping');
 
@@ -159,7 +173,8 @@ class AvantImport_IndexController extends Omeka_Controller_AbstractActionControl
             }
         }
         if (!$isSetIdentifier) {
-            $this->_helper->flashMessenger(__('Please map a column to the special value "Identifier".'), 'error');
+            $identifierElementName = ItemMetadata::getIdentifierElementName();
+            $this->_helper->flashMessenger(__("No column is mapped to the '%s' element", $identifierElementName), 'error');
             return;
         }
 

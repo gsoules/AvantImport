@@ -77,19 +77,7 @@ class AvantImport_Form_Mapping extends Omeka_Form
             ));
             $selectElement->setIsArray(true);
             $selectElement->setValue($elementId);
-
             $rowSubForm->addElement($selectElement);
-
-            // Add the special selector.
-            $specialElement = $rowSubForm->createElement('select',
-                'special',
-                array(
-                    'class' => 'map-element',
-                    'multiOptions' => $specialValues,
-                    'multiple' => false, // see ZF-8452
-            ));
-            $specialElement->setValue($this->_getSpecialValue($colName));
-            $rowSubForm->addElement($specialElement);
 
             $this->_setSubFormDecorators($rowSubForm);
             $this->addSubForm($rowSubForm, "row$index");
@@ -395,7 +383,8 @@ class AvantImport_Form_Mapping extends Omeka_Form
      */
     protected function _getRowValue($index, $elementName)
     {
-        return $this->getSubForm("row$index")->$elementName->getValue();
+        $subFormRow = $this->getSubForm("row$index");
+        return $subFormRow->$elementName->getValue();
     }
 
     /**
@@ -449,9 +438,8 @@ class AvantImport_Form_Mapping extends Omeka_Form
         }
 
         $elementIds = $this->_getMappedElementId($index);
-        $isHtml = $this->_getRowValue($index, 'html');
         foreach($elementIds as $elementId) {
-            // Make sure to skip empty mappings.
+            // Skip <files> mapping.
             if (!$elementId) {
                 continue;
             }
@@ -459,50 +447,19 @@ class AvantImport_Form_Mapping extends Omeka_Form
             $elementMap = new AvantImport_ColumnMap_Element($columnName, $this->_elementDelimiter);
             $elementMap->setOptions(array(
                 'elementId' => $elementId,
-                'isHtml' => $isHtml,
+                'isHtml' => false,
             ));
             $columnMap[] = $elementMap;
         }
 
-        $specialValue = $this->_getMappedSpecialValue($index);
-        switch ($specialValue) {
-            case 'Identifier':
-                $columnMap[] = new AvantImport_ColumnMap_Identifier($columnName);
-                break;
-            case 'Action':
-                $columnMap[] = new AvantImport_ColumnMap_Action($columnName, $this->_action);
-                break;
-            case 'Identifier Field':
-            case 'IdentifierField':
-                $columnMap[] = new AvantImport_ColumnMap_IdentifierField($columnName, $this->_identifierField);
-                break;
-            case 'Record Type':
-            case 'RecordType':
-                $columnMap[] = new AvantImport_ColumnMap_RecordType($columnName);
-                break;
-            case 'Item Type':
-            case 'ItemType':
-                $columnMap[] = new AvantImport_ColumnMap_ItemType($columnName, $this->_itemTypeId);
-                break;
-            case 'Item':
-                $columnMap[] = new AvantImport_ColumnMap_Item($columnName);
-                break;
-            case 'Collection':
-                $columnMap[] = new AvantImport_ColumnMap_Collection($columnName, $this->_collectionId);
-                break;
-            case 'Public':
-                $columnMap[] = new AvantImport_ColumnMap_Public($columnName, $this->_isPublic);
-                break;
-            case 'Featured':
-                $columnMap[] = new AvantImport_ColumnMap_Featured($columnName, $this->_isFeatured);
-                break;
-            case 'File':
-            case 'Files':
-                $columnMap[] = new AvantImport_ColumnMap_File($columnName, $this->_fileDelimiter);
-                break;
-            case 'Tags':
-                $columnMap[] = new AvantImport_ColumnMap_Tag($columnName, $this->_tagDelimiter);
-                break;
+        if ($elementId == 0)
+        {
+            $columnMap[] = new AvantImport_ColumnMap_File($columnName, $this->_fileDelimiter);
+        }
+
+        if ($elementId == ItemMetadata::getIdentifierElementId())
+        {
+            $columnMap[] = new AvantImport_ColumnMap_Identifier($columnName);
         }
 
         return $columnMap;
