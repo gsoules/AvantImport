@@ -7,7 +7,7 @@
     <thead>
     <tr>
         <th><?php echo __('CSV column name'); ?></th>
-        <th><?php echo __('Map to element'); ?></th>
+        <th><?php echo __('Element name'); ?></th>
         <th><?php echo __('First data row from CSV file'); ?></th>
     </tr>
     </thead>
