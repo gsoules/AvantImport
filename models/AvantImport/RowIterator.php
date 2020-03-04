@@ -78,11 +78,17 @@ class AvantImport_RowIterator implements SeekableIterator
         $colRow = $this->_getNextRow();
         $this->_colNames = array_map("trim", array_keys(array_flip($colRow)));
 
-        // Remove the UTF-8 BOM if it exists. Some applications like Excel prepend a Byte Order Mark '\uFEFF'
-        // to the beginning of a CSV file when saving it as UTF-8. Even though you can't see it, not even in the
-        // PHP debugger, if it's there, it adds 3 bytes to the string and causes string comparisons to fail.
-        $column0 = str_replace("\xEF\xBB\xBF",'', $this->_colNames[0]);
-        $this->_colNames[0] = $column0;
+        $column0Row0 = $this->_colNames[0];
+        $bom = pack("CCC", 0xef, 0xbb, 0xbf);
+        if (0 === strncmp($column0Row0, $bom, 3))
+        {
+            // BOM detected - file is UTF-8.
+            $this->_colNames[0] = str_replace("\xEF\xBB\xBF", '', $column0Row0);
+        }
+        else
+        {
+            throw new AvantImport_NonAsciiColumnsException("CSV file is not in UTF-8 format.");
+        }
 
         $this->_colCount = count($colRow);
         $uniqueColCount = count($this->_colNames);

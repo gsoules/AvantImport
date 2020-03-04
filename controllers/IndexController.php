@@ -51,7 +51,8 @@ class AvantImport_IndexController extends Omeka_Controller_AbstractActionControl
         $file = new AvantImport_File($filePath, $columnDelimiter, $enclosure);
 
         if (!$file->parse()) {
-            $this->_helper->flashMessenger(__('Your file is incorrectly formatted.')
+            $originalFileName =  $_FILES['csv_file']['name'];
+            $this->_helper->flashMessenger(__("'%s' cannot be imported.", $originalFileName)
                 . ' ' . $file->getErrorString(), 'error');
             return;
         }

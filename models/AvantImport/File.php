@@ -97,6 +97,9 @@ class AvantImport_File implements IteratorAggregate
         try {
             $this->_columnNames = $rowIterator->getColumnNames();
             $this->_columnExamples = $rowIterator->current();
+        } catch (AvantImport_NonAsciiColumnsException $e) {
+            $this->_parseErrors[] = $e->getMessage();
+            return false;
         } catch (AvantImport_DuplicateColumnException $e) {
             $this->_parseErrors[] = $e->getMessage()
                 . ' ' . __('Please ensure that all column names are unique.');
