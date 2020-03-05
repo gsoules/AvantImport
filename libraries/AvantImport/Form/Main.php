@@ -31,6 +31,7 @@ class AvantImport_Form_Main extends Omeka_Form
         $this->addElement('checkbox', 'records_are_public', array(
             'label' => __('Make items public'),
             'description' => __('Check to make imported items public'),
+            'value' => (bool)get_option('avant_import_public') == true
         ));
 
         $this->addDisplayGroup(
