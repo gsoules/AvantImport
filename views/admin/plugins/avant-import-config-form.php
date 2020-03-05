@@ -20,28 +20,28 @@ $columnMappingFieldRows = max(2, count(explode(PHP_EOL, $columnMappingField)));
     </div>
 </div>
 
-<div class="field">
-    <div class="two columns alpha">
-        <?php echo $this->formLabel('avant_import_allow_roles', __('Roles that can import')); ?>
-    </div>
-    <div class="inputs five columns omega">
-        <div class="input-block">
-            <?php
-                $currentRoles = unserialize(get_option('avant_import_allow_roles')) ?: array();
-                $userRoles = get_user_roles();
-                echo '<ul style="padding-left: 0;">';
-                foreach ($userRoles as $role => $label) {
-                    echo '<li style="list-style: none;">';
-                    echo $this->formCheckbox('avant_import_allow_roles[]', $role,
-                        array('checked' => in_array($role, $currentRoles) ? 'checked' : ''));
-                    echo '&nbsp;&nbsp;' . $label;
-                    echo '</li>';
-                }
-                echo '</ul>';
-            ?>
-        </div>
-    </div>
-</div>
+<!--<div class="field">-->
+<!--    <div class="two columns alpha">-->
+<!--        --><?php //echo $this->formLabel('avant_import_allow_roles', __('Roles that can import')); ?>
+<!--    </div>-->
+<!--    <div class="inputs five columns omega">-->
+<!--        <div class="input-block">-->
+<!--            --><?php
+//                $currentRoles = unserialize(get_option('avant_import_allow_roles')) ?: array();
+//                $userRoles = get_user_roles();
+//                echo '<ul style="padding-left: 0;">';
+//                foreach ($userRoles as $role => $label) {
+//                    echo '<li style="list-style: none;">';
+//                    echo $this->formCheckbox('avant_import_allow_roles[]', $role,
+//                        array('checked' => in_array($role, $currentRoles) ? 'checked' : ''));
+//                    echo '&nbsp;&nbsp;' . $label;
+//                    echo '</li>';
+//                }
+//                echo '</ul>';
+//            ?>
+<!--        </div>-->
+<!--    </div>-->
+<!--</div>-->
 <!--<div class="field">-->
 <!--    <div class="two columns alpha">-->
 <!--        --><?php //echo $this->formLabel('avant_import_slow_process', __('Slow the process')); ?>

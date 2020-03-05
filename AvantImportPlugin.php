@@ -197,9 +197,8 @@ class AvantImportPlugin extends Omeka_Plugin_AbstractPlugin
 
         $roles = $acl->getRoles();
 
-        // Check that all the roles exist, in case a plugin-added role has
-        // been removed (e.g. GuestUser).
-        $allowRoles = unserialize(get_option('avant_import_allow_roles')) ?: array();
+        // Only allow the super user to import.
+        $allowRoles = array('super');
         $allowRoles = array_intersect($roles, $allowRoles);
         if ($allowRoles) {
             $acl->allow($allowRoles, $resource);
