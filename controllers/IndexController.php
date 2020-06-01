@@ -59,13 +59,14 @@ class AvantImport_IndexController extends Omeka_Controller_AbstractActionControl
 
         $columnNamesFromCsvFile = $file->getColumnNames();
         $columnMappings = ImportConfig::getOptionDataForColumnMappingField();
+        $importableColumnNames = array();
         foreach ($columnMappings as $mapping)
         {
             foreach ($columnNamesFromCsvFile as $csvColumnName)
             {
                 if ($mapping['column'] == $csvColumnName)
                 {
-                    $importableColumnName[] = $csvColumnName;
+                    $importableColumnNames[] = $csvColumnName;
                     break;
                 }
             }
@@ -84,7 +85,7 @@ class AvantImport_IndexController extends Omeka_Controller_AbstractActionControl
         $this->session->containsExtraData = "manual";
         $this->session->columnDelimiter = ",";
         $this->session->enclosure = '"';
-        $this->session->columnNames = $importableColumnName;
+        $this->session->columnNames = $importableColumnNames;
         $this->session->columnExamples = $file->getColumnExamples();
         $this->session->columnMapping = $form->getValue('column_mapping');
 
