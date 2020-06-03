@@ -4,7 +4,7 @@ class AvantImport_ColumnMap_MixElement extends AvantImport_ColumnMap
 {
     const DEFAULT_COLUMN_NAME_DELIMITER = ':';
     const ELEMENT_DELIMITER_OPTION_NAME = 'avant_import_element_delimiter';
-    const DEFAULT_ELEMENT_DELIMITER = "\r";
+    const DEFAULT_ELEMENT_DELIMITER = ";";
 
     private $_columnNameDelimiter;
     private $_elementDelimiter;

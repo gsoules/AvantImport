@@ -3,7 +3,7 @@
 class AvantImport_ColumnMap_File extends AvantImport_ColumnMap
 {
     const FILE_DELIMITER_OPTION_NAME = 'avant_import_file_delimiter';
-    const DEFAULT_FILE_DELIMITER = ',';
+    const DEFAULT_FILE_DELIMITER = ';';
 
     private $_fileDelimiter;
 

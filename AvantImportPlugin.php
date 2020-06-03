@@ -233,7 +233,7 @@ class AvantImportPlugin extends Omeka_Plugin_AbstractPlugin
     public function filterAdminNavigationMain($nav)
     {
         $nav[] = array(
-            'label' => __('AvantImport'),
+            'label' => __('Import CSV File'),
             'uri' => url('avant-import'),
             'resource' => 'AvantImport_Index',
             'privilege' => 'index',

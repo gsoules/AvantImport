@@ -95,9 +95,9 @@ class AvantImport_IndexController extends Omeka_Controller_AbstractActionControl
             $value = iconv('ISO-8859-15', 'UTF-8', @iconv('UTF-8', 'ISO-8859-15' . '//IGNORE', $value));
         }
 
-        $this->session->elementDelimiter = "";
+        $this->session->elementDelimiter = ";";
         $this->session->tagDelimiter = ",";
-        $this->session->fileDelimiter = ",";
+        $this->session->fileDelimiter = ";";
 
         $this->session->ownerId = $this->getInvokeArg('bootstrap')->currentuser->id;
 
