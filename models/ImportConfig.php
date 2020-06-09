@@ -75,10 +75,14 @@ class ImportConfig extends ConfigOptions
             // Syntax: <csv-column-name> ":" <element-name>
             $parts = array_map('trim', explode(':', $definition));
 
-            $columnName = $parts[0];
+            $sourceColumName = $parts[0];
+            $targetColumName = $parts[1];
 
-            self::errorIf(count($parts) > 2, CONFIG_LABEL_COLUMN_MAPPING, __("Mapping for column '%s' has too many parameters", $columnName));
-            self::errorIf(count($parts) != 2, CONFIG_LABEL_COLUMN_MAPPING, __("Element name for column '%s' is missing", $columnName));
+            self::errorIf(count($parts) > 2, CONFIG_LABEL_COLUMN_MAPPING, __("Mapping for column '%s' has too many parameters", $sourceColumName));
+            self::errorIf(count($parts) != 2, CONFIG_LABEL_COLUMN_MAPPING, __("Element name for column '%s' is missing", $sourceColumName));
+
+            $unusedElementsData = CommonConfig::getOptionDataForUnusedElements();
+            self::errorIf(in_array($targetColumName, $unusedElementsData), CONFIG_LABEL_COLUMN_MAPPING, __("Element '%s' is unused and cannot be imported into", $targetColumName));
 
             if (isset($parts[1]))
             {
@@ -94,7 +98,7 @@ class ImportConfig extends ConfigOptions
                 }
             }
 
-            $data[$elementId] = array('column' => $columnName);
+            $data[$elementId] = array('column' => $sourceColumName);
         }
 
         set_option(self::OPTION_COLUMN_MAPPING, json_encode($data));
