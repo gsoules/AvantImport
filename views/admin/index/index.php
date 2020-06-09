@@ -1,5 +1,13 @@
 <?php
     echo head(array('title' => __('AvantImport')));
+
+    if (plugin_is_active('AvantElasticsearch'))
+    {
+        echo '<div class="error">The AvantImport plugin cannot be used while AvantElasticsearch is active.</div>';
+        echo '<p>Deactive AvantElasticsearch, perform the import, and then activate AvantElasticsearch.</p>';
+        echo foot();
+        return;
+    }
 ?>
 <?php echo common('avantimport-nav'); ?>
 <div id="primary">
