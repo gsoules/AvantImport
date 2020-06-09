@@ -10,9 +10,6 @@ class AvantImport_Form_Main extends Omeka_Form
     private $_fileDestinationDir;
     private $_maxFileSize;
 
-    /**
-     * Initialize the form.
-     */
     public function init()
     {
         parent::init();
@@ -66,9 +63,6 @@ class AvantImport_Form_Main extends Omeka_Form
         $this->setAutoApplyOmekaStyles(false);
     }
 
-    /**
-     * Add the file element to the form.
-     */
     protected function _addFileElement()
     {
         $size = $this->getMaxFileSize();
@@ -103,13 +97,6 @@ class AvantImport_Form_Main extends Omeka_Form
         $this->csv_file->addFilter($filter);
     }
 
-    /**
-     * Return the human readable word for a delimiter if any, or the delimiter.
-     *
-     * @param string $delimiter The delimiter
-     * @return string The human readable word for the delimiter if any, or the
-     * delimiter itself.
-     */
     protected function _getHumanDelimiterText($delimiter)
     {
         $delimitersList = AvantImport_IndexController::getDelimitersList();
@@ -119,11 +106,6 @@ class AvantImport_Form_Main extends Omeka_Form
             : $delimiter;
     }
 
-    /**
-     * Return the list of standard delimiters for drop-down menu.
-     *
-     * @return array The list of standard delimiters
-     */
     protected function _getDelimitersMenu()
     {
         $delimitersListKeys = array_keys(AvantImport_IndexController::getDelimitersList());
@@ -132,54 +114,6 @@ class AvantImport_Form_Main extends Omeka_Form
         return $values;
     }
 
-    /**
-     * Add the column delimiter element to the form.
-     */
-    protected function _addColumnDelimiterElement()
-    {
-        $delimiter = $this->_columnDelimiter;
-        $humanDelimiterText = $this->_getHumanDelimiterText($delimiter);
-
-        $delimitersList = AvantImport_IndexController::getDelimitersList();
-        $delimiterCurrent = in_array($delimiter, $delimitersList)
-            ? array_search($delimiter, $delimitersList)
-            : 'custom';
-
-        // Two elements are needed to select the delimiter.
-        // First, a list for special characters (one character).
-        $values = $this->_getDelimitersMenu();
-        unset($values['double space']);
-        unset($values['empty']);
-        $this->addElement('select', 'column_delimiter_name', array(
-            'label' => __('Column delimiter'),
-            'description'=> __('A single character that will be used to separate columns in the file (the previously used "%s" by default).', $humanDelimiterText),
-            'multiOptions' => $values,
-            'value' => $delimiterCurrent,
-        ));
-
-        // Second, a field to let user chooses a custom delimiter.
-        // TODO Autoset according to previous element or display the element only if the column delimiter is "custom".
-        $this->addElement('text', 'column_delimiter', array(
-            'value' => $delimiter,
-            'required' => false,
-            'size' => '1',
-            'validators' => array(
-                // A second check is done in method isValid() with minimum of 1.
-                array('validator' => 'StringLength', 'options' => array(
-                    'min' => 0,
-                    'max' => 1,
-                    'messages' => array(
-                        Zend_Validate_StringLength::TOO_LONG =>
-                            __('Column delimiter must be one character long.'),
-                    ),
-                )),
-            ),
-        ));
-    }
-
-    /**
-     * Add the enclosure element to the form
-     */
     protected function _addEnclosureElement()
     {
         $enclosure = $this->_enclosure;
@@ -218,111 +152,6 @@ class AvantImport_Form_Main extends Omeka_Form
         ));
     }
 
-    /**
-     * Add the element delimiter element to the form.
-     */
-    protected function _addElementDelimiterElement()
-    {
-        $delimiter = $this->_elementDelimiter;
-        $humanDelimiterText = $this->_getHumanDelimiterText($delimiter);
-
-        $delimitersList = AvantImport_IndexController::getDelimitersList();
-        $delimiterCurrent = in_array($delimiter, $delimitersList)
-            ? array_search($delimiter, $delimitersList)
-            : 'custom';
-
-        // Two elements are needed to select the delimiter.
-        // First, a list for special characters.
-        $values = $this->_getDelimitersMenu();
-        $this->addElement('select', 'element_delimiter_name', array(
-            'label' => __('Element delimiter'),
-            'description' => __('This delimiter will be used to separate metadata elements within a cell (the previously used "%s" by default).', $humanDelimiterText) . '<br />'
-                . __('If the delimiter is empty, then the whole text will be used.') . '<br />'
-                . ' ' . __('To use more than one character is allowed.'),
-            'multiOptions' => $values,
-            'value' => $delimiterCurrent,
-            'required' => false,
-        ));
-        // Second, a field to let user chooses a custom delimiter.
-        // TODO Autoset according to previous element or display and check the element only if the file delimiter is "custom".
-        $this->addElement('text', 'element_delimiter', array(
-            'value' => $delimiter,
-            'required' => false,
-            'size' => '40',
-        ));
-    }
-
-    /**
-     * Add the tag delimiter element to the form.
-     */
-    protected function _addTagDelimiterElement()
-    {
-        $delimiter = $this->_tagDelimiter;
-        $humanDelimiterText = $this->_getHumanDelimiterText($delimiter);
-
-        $delimitersList = AvantImport_IndexController::getDelimitersList();
-        $delimiterCurrent = in_array($delimiter, $delimitersList)
-            ? array_search($delimiter, $delimitersList)
-            : 'custom';
-
-        // Two elements are needed to select the delimiter.
-        // First, a list for special characters.
-        $values = $this->_getDelimitersMenu();
-        $this->addElement('select', 'tag_delimiter_name', array(
-            'label' => __('Tag delimiter'),
-            'description' => __('This delimiter will be used to separate tags within a cell (the previously used "%s" by default).', $humanDelimiterText) . '<br />'
-                . __('If the delimiter is empty, then the whole text will be used.') . '<br />'
-                . ' ' . __('To use more than one character is allowed.'),
-            'multiOptions' => $values,
-            'value' => $delimiterCurrent,
-            'required' => false,
-        ));
-        // Second, a field to let user chooses a custom delimiter.
-        // TODO Autoset according to previous element or display and check the element only if the tag delimiter is "custom".
-        $this->addElement('text', 'tag_delimiter', array(
-            'value' => $delimiter,
-            'required' => false,
-            'size' => '40',
-        ));
-    }
-
-    /**
-     * Add the file delimiter element to the form.
-     */
-    protected function _addFileDelimiterElement()
-    {
-        $delimiter = $this->_fileDelimiter;
-        $humanDelimiterText = $this->_getHumanDelimiterText($delimiter);
-
-        $delimitersList = AvantImport_IndexController::getDelimitersList();
-        $delimiterCurrent = in_array($delimiter, $delimitersList)
-            ? array_search($delimiter, $delimitersList)
-            : 'custom';
-
-        // Two elements are needed to select the delimiter.
-        // First, a list for special characters.
-        $values = $this->_getDelimitersMenu();
-        $this->addElement('select', 'file_delimiter_name', array(
-            'label' => __('File delimiter'),
-            'description' => __('This delimiter will be used to separate file paths or URLs within a cell (the previously used "%s" by default).', $humanDelimiterText) . '<br />'
-                . __('If the delimiter is empty, then the whole text will be used as the file path or URL.') . '<br />'
-                . ' ' . __('To use more than one character is allowed.'),
-            'multiOptions' => $values,
-            'value' => $delimiterCurrent,
-            'required' => false,
-        ));
-        // Second, a field to let user chooses a custom delimiter.
-        // TODO Autoset according to previous element or display and check the element only if the file delimiter is "custom".
-        $this->addElement('text', 'file_delimiter', array(
-            'value' => $delimiter,
-            'required' => false,
-            'size' => '40',
-        ));
-    }
-
-    /**
-     * Validate the form post.
-     */
     public function isValid($post)
     {
         $isValid = true;
@@ -343,61 +172,6 @@ class AvantImport_Form_Main extends Omeka_Form
         return parent::isValid($post);
     }
 
-    /**
-     * Set the column delimiter for the form.
-     *
-     * @param string $delimiter The column delimiter
-     */
-    public function setColumnDelimiter($delimiter)
-    {
-        $this->_columnDelimiter = $delimiter;
-    }
-
-    /**
-     * Set the enclosure for the form.
-     *
-     * @param string $enclosure The enclosure
-     */
-    public function setEnclosure($enclosure)
-    {
-        $this->_enclosure = $enclosure;
-    }
-
-    /**
-     * Set the element delimiter for the form.
-     *
-     * @param string $delimiter The element delimiter
-     */
-    public function setElementDelimiter($delimiter)
-    {
-        $this->_elementDelimiter = $delimiter;
-    }
-
-    /**
-     * Set the tag delimiter for the form.
-     *
-     * @param string $delimiter The tag delimiter
-     */
-    public function setTagDelimiter($delimiter)
-    {
-        $this->_tagDelimiter = $delimiter;
-    }
-
-    /**
-     * Set the file delimiter for the form.
-     *
-     * @param string $delimiter The file delimiter
-     */
-    public function setFileDelimiter($delimiter)
-    {
-        $this->_fileDelimiter = $delimiter;
-    }
-
-    /**
-     * Set the file destination for the form.
-     *
-     * @param string $dest The file destination
-     */
     public function setFileDestination($dest)
     {
         $this->_fileDestinationDir = $dest;
@@ -452,11 +226,6 @@ class AvantImport_Form_Main extends Omeka_Form
         $this->_maxFileSize = $maxSize;
     }
 
-    /**
-     * Return the max file size.
-     *
-     * @return string The max file size
-     */
     public function getMaxFileSize()
     {
         if (!$this->_maxFileSize) {
@@ -465,11 +234,6 @@ class AvantImport_Form_Main extends Omeka_Form
         return $this->_maxFileSize;
     }
 
-    /**
-     * Return the binary size measure.
-     *
-     * @return Zend_Measure_Binary The binary size
-     */
     protected function _getBinarySize($size)
     {
         if (!preg_match('/(\d+)([KMG]?)/i', $size, $matches)) {
@@ -489,28 +253,5 @@ class AvantImport_Form_Main extends Omeka_Form
         }
 
         return new Zend_Measure_Binary($matches[1], $sizeType);
-    }
-
-    /**
-     * Return the element from an identifier.
-     *
-     * @return Element|boolean
-     */
-    private function _getElementFromIdentifierField($identifierField)
-    {
-        if (strlen($identifierField) > 0) {
-            $parts = explode(
-                    AvantImport_ColumnMap_MixElement::DEFAULT_COLUMN_NAME_DELIMITER,
-                    $identifierField);
-            if (count($parts) == 2) {
-                $elementSetName = trim($parts[0]);
-                $elementName = trim($parts[1]);
-                $element = get_db()->getTable('Element')
-                    ->findByElementSetNameAndElementName($elementSetName, $elementName);
-                if ($element) {
-                    return $element;
-                }
-            }
-        }
     }
 }

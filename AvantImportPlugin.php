@@ -162,18 +162,6 @@ class AvantImportPlugin extends Omeka_Plugin_AbstractPlugin
      */
     public function hookConfig($args)
     {
-        $post = $args['post'];
-        foreach ($this->_options as $optionKey => $optionValue) {
-            if (in_array($optionKey, array(
-                    'avant_import_allow_roles',
-                ))) {
-               $post[$optionKey] = serialize($post[$optionKey]) ?: serialize(array());
-            }
-            if (isset($post[$optionKey])) {
-                set_option($optionKey, $post[$optionKey]);
-            }
-        }
-
         ImportConfig::saveConfiguration();
     }
 
