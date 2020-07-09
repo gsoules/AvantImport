@@ -76,26 +76,23 @@ class ImportConfig extends ConfigOptions
             $parts = array_map('trim', explode(':', $definition));
 
             $sourceColumName = $parts[0];
-            $targetColumName = $parts[1];
-
+            $partsCount = count($parts);
             self::errorIf(count($parts) > 2, CONFIG_LABEL_COLUMN_MAPPING, __("Mapping for column '%s' has too many parameters", $sourceColumName));
-            self::errorIf(count($parts) != 2, CONFIG_LABEL_COLUMN_MAPPING, __("Element name for column '%s' is missing", $sourceColumName));
+
+            $targetColumName = $partsCount == 2 ? $parts[1] : $parts[0];
 
             $unusedElementsData = CommonConfig::getOptionDataForUnusedElements();
             self::errorIf(in_array($targetColumName, $unusedElementsData), CONFIG_LABEL_COLUMN_MAPPING, __("Element '%s' is unused and cannot be imported into", $targetColumName));
 
-            if (isset($parts[1]))
+            $elementName = $targetColumName;
+            if ($elementName == '<files>')
             {
-                $elementName = $parts[1];
-                if ($elementName == '<files>')
-                {
-                    $elementId = $elementName;
-                }
-                else
-                {
-                    $elementId = ItemMetadata::getElementIdForElementName($elementName);
-                    self::errorIfNotElement($elementId, CONFIG_LABEL_COLUMN_MAPPING, $elementName);
-                }
+                $elementId = $elementName;
+            }
+            else
+            {
+                $elementId = ItemMetadata::getElementIdForElementName($elementName);
+                self::errorIfNotElement($elementId, CONFIG_LABEL_COLUMN_MAPPING, $elementName);
             }
 
             $data[$elementId] = array('column' => $sourceColumName);
