@@ -1,11 +1,6 @@
 # AvantImport
 
-AvantImport is a derivation of [CSV Import+](https://github.com/Daniel-KM/Omeka-plugin-CsvImportPlus).
-It was created for use with the Digital Archive. Compared to CSV Import++, AvantImport has a much simpler
-user interface because it presents far fewer options, only those useful for import into the Digital Archive.
-It also has more robust detection and handling of invalid input, and only allows import of CSV files that
-are in UTF-8 format. It requires UTF-8 to ensure that CSV text with non-ASCII characters (such as letters
-with accent marks) can be imported without triggering a MySQL error.
+Documentation for this plugin is located at <https://digitalarchive.us/plugins/avantimport>.
 
 ## Warning
 
@@ -32,13 +27,5 @@ this program; if not, write to the Free Software Foundation, Inc.,
 Copyright
 ---------
 
-* Modifed by [gsoules](https://github.com/gsoules) based on
- [CSV Import+](https://github.com/Daniel-KM/Omeka-plugin-CsvImportPlus)
- by [Daniel Berthereau](https://github.com/Daniel-KM) 
-
-* Copyright Center for History and New Media, 2008-2016
-* Copyright Shawn Averkamp, 2012
-* Copyright Matti Lassila, 2016
-* Copyright Daniel Berthereau, 2012-2017
-* Copyright George Soules, 2020
-* See [LICENSE](https://github.com/gsoules/AvantImport/blob/master/LICENSE) for more information.
+* Created by [gsoules](https://github.com/gsoules) 
+* Copyright George Soules, 2016-2022.
