@@ -39,7 +39,10 @@ class AvantImport_Import extends Omeka_Record_AbstractRecord implements Zend_Acl
     public $owner_id;
     public $added;
 
-    private $_csvFile;
+    private $_translate_column_id = null;
+    private $translate_file_name;
+    private $_translate_table;
+
     private $_isHtml;
     private $_importedCount = 0;
 
@@ -588,10 +591,10 @@ class AvantImport_Import extends Omeka_Record_AbstractRecord implements Zend_Acl
      */
     public function getCsvFile()
     {
-        if (empty($this->_csvFile)) {
-            $this->_csvFile = new AvantImport_File($this->file_path, $this->delimiter, $this->enclosure);
+        if (empty($this->translate_file_name)) {
+            $this->translate_file_name = new AvantImport_File($this->file_path, $this->delimiter, $this->enclosure);
         }
-        return $this->_csvFile;
+        return $this->translate_file_name;
     }
 
     /**
@@ -1062,6 +1065,9 @@ class AvantImport_Import extends Omeka_Record_AbstractRecord implements Zend_Acl
         // Trim metadata to avoid spaces.
         $elementTexts = $this->_trimElementTexts($elementTexts);
 
+        // Translate a column's value to another value.
+        $elementTexts = $this->_translateElementTexts($elementTexts);
+
         $extraData = $map[AvantImport_ColumnMap::TYPE_EXTRA_DATA];
         // Empty fields should not be removed. Fields are not trimmed.
 
@@ -1316,6 +1322,10 @@ class AvantImport_Import extends Omeka_Record_AbstractRecord implements Zend_Acl
         if ($action == AvantImport_ColumnMap_Action::ACTION_ADD || $action == AvantImport_ColumnMap_Action::ACTION_REPLACE) {
             $elementTexts = array_values(array_filter($elementTexts, 'self::_removeEmptyElement'));
         }
+
+        // Translate a column's value to another value.
+        $elementTexts = $this->_translateElementTexts($elementTexts);
+
         // Overwrite existing element text values if wanted.
         if ($action == AvantImport_ColumnMap_Action::ACTION_UPDATE || $action == AvantImport_ColumnMap_Action::ACTION_REPLACE) {
             foreach ($elementTexts as $key => $content) {
@@ -1870,6 +1880,61 @@ class AvantImport_Import extends Omeka_Record_AbstractRecord implements Zend_Acl
     {
         // Don't remove 0.
         return (isset($element['text']) && $element['text'] !== '');
+    }
+
+    private function _translateElementTexts($elementTexts)
+    {
+        if ($this->_translate_column_id == null)
+        {
+            // A null column Id means this is the first time checking for a translate table.
+            $this->_translate_column_id = 0;
+            $csvFileName = CSV_EXPORT_PLUGIN_DIR . DIRECTORY_SEPARATOR . 'translate-column.csv';
+
+            // Check for the existence of a CSV file containing two columns: the translation text and the column value
+            // to be translated. The first row is a header where the first column is "Translation" and the second
+            // column is the name of the element that the translation is for.
+            if (file_exists($csvFileName))
+            {
+                // The file exists. Get the element Id of the element name of the column to be translated.
+                $this->_translate_table = array_map("str_getcsv", file($csvFileName));
+                $headerRow = $this->_translate_table[0];
+                $columnName = $headerRow[1];
+                $this->_translate_column_id = ItemMetadata::getElementIdForElementName($columnName);
+            }
+        }
+
+        // Do nothing if there is no translate table, or if it exists, but its column name does not match an element.
+        if ($this->_translate_column_id == 0)
+            return $elementTexts;
+
+        foreach ($elementTexts as &$element)
+        {
+            if (intval($element["element_id"]) != $this->_translate_column_id)
+                continue;
+
+            $success = false;
+            foreach ($this->_translate_table as $rowNumber => $row)
+            {
+                // Skip the header row.
+                if ($rowNumber == 0)
+                    continue;
+
+                // Look for a match.
+                $beforeValue = strtolower($row[1]);
+                if (strtolower($element["text"]) == $beforeValue)
+                {
+                    $afterValue = $row[0];
+                    $element["text"] = $afterValue;
+                    $success = true;
+                    break;
+                }
+            }
+
+            if (!$success)
+                $element["text"] = "UNKNOWN: " . $element["text"];
+        }
+
+        return $elementTexts;
     }
 
     /**
