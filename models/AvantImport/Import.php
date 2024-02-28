@@ -1931,7 +1931,7 @@ class AvantImport_Import extends Omeka_Record_AbstractRecord implements Zend_Acl
             }
 
             if (!$success)
-                $element["text"] = "UNKNOWN: " . $element["text"];
+                $element["text"] = "<span style='color:darkred'>* " . $element["text"] . "</span>";
         }
 
         return $elementTexts;
