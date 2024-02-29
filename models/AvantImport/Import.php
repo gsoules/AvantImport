@@ -65,7 +65,7 @@ class AvantImport_Import extends Omeka_Record_AbstractRecord implements Zend_Acl
      */
      private $_currentMap;
 
-     private $_textTranslator = null;
+     private $helperPlugin = null;
 
     protected function _initializeMixins()
     {
@@ -713,10 +713,24 @@ class AvantImport_Import extends Omeka_Record_AbstractRecord implements Zend_Acl
                     $this->_currentMap = $this->getColumnMaps()->map($row);
                     $map = &$this->_currentMap;
 
+                    $rowHasError = false;
+                    if (plugin_is_active('MDIBL'))
+                    {
+                        if (!$this->helperPlugin)
+                            $this->helperPlugin = new MDIBL();
+                        $errorMessage = $this->helperPlugin->validateColumns($row);
+                        if ($errorMessage)
+                        {
+                            $this->_log($errorMessage, array($index), Zend_Log::ERR);
+                            $rowHasError = true;
+                        }
+                    }
+
                     // Process returns the record if any, true if success but no
                     // record (delete), false in case of error and null in other
                     // cases (true skip).
-                    $record = $this->_manageFromMappedRow();
+                    if (!$rowHasError)
+                        $record = $this->_manageFromMappedRow();
 
                     if (empty($record)) {
                         $this->skipped_record_count++;
@@ -1884,9 +1898,9 @@ class AvantImport_Import extends Omeka_Record_AbstractRecord implements Zend_Acl
     {
         if (plugin_is_active('MDIBL'))
         {
-            if (!$this->_textTranslator)
-                $this->_textTranslator = new MDIBL();
-            return $this->_textTranslator->TranslateElementTexts($elementTexts);
+            if (!$this->helperPlugin)
+                $this->helperPlugin = new MDIBL();
+            return $this->helperPlugin->TranslateElementTexts($elementTexts);
         }
 
         return $elementTexts;
