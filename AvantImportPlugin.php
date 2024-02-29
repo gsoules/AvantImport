@@ -1,7 +1,5 @@
 <?php
 
-defined('AVANT_IMPORT_DIRECTORY') or define('AVANT_IMPORT_DIRECTORY', dirname(__FILE__));
-
 class AvantImportPlugin extends Omeka_Plugin_AbstractPlugin
 {
     const MEMORY_LIMIT_OPTION_NAME = 'avant_import_memory_limit';

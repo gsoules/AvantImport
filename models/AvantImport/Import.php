@@ -39,10 +39,6 @@ class AvantImport_Import extends Omeka_Record_AbstractRecord implements Zend_Acl
     public $owner_id;
     public $added;
 
-    private $_translate_column_id = null;
-    private $translate_file_name;
-    private $_translate_table;
-
     private $_isHtml;
     private $_importedCount = 0;
 
@@ -68,6 +64,8 @@ class AvantImport_Import extends Omeka_Record_AbstractRecord implements Zend_Acl
      * The mapping of the current row from a CSV file (AvantImport_ColumnMap_Set).
      */
      private $_currentMap;
+
+     private $_textTranslator = null;
 
     protected function _initializeMixins()
     {
@@ -1884,54 +1882,11 @@ class AvantImport_Import extends Omeka_Record_AbstractRecord implements Zend_Acl
 
     private function _translateElementTexts($elementTexts)
     {
-        if ($this->_translate_column_id == null)
+        if (plugin_is_active('MDIBL'))
         {
-            // A null column Id means this is the first time checking for a translate table.
-            $this->_translate_column_id = 0;
-            $csvFileName = CSV_EXPORT_PLUGIN_DIR . DIRECTORY_SEPARATOR . 'translate-column.csv';
-
-            // Check for the existence of a CSV file containing two columns: the translation text and the column value
-            // to be translated. The first row is a header where the first column is "Translation" and the second
-            // column is the name of the element that the translation is for.
-            if (file_exists($csvFileName))
-            {
-                // The file exists. Get the element Id of the element name of the column to be translated.
-                $this->_translate_table = array_map("str_getcsv", file($csvFileName));
-                $headerRow = $this->_translate_table[0];
-                $columnName = $headerRow[1];
-                $this->_translate_column_id = ItemMetadata::getElementIdForElementName($columnName);
-            }
-        }
-
-        // Do nothing if there is no translate table, or if it exists, but its column name does not match an element.
-        if ($this->_translate_column_id == 0)
-            return $elementTexts;
-
-        foreach ($elementTexts as &$element)
-        {
-            if (intval($element["element_id"]) != $this->_translate_column_id)
-                continue;
-
-            $success = false;
-            foreach ($this->_translate_table as $rowNumber => $row)
-            {
-                // Skip the header row.
-                if ($rowNumber == 0)
-                    continue;
-
-                // Look for a match.
-                $beforeValue = strtolower($row[1]);
-                if (strtolower($element["text"]) == $beforeValue)
-                {
-                    $afterValue = $row[0];
-                    $element["text"] = $afterValue;
-                    $success = true;
-                    break;
-                }
-            }
-
-            if (!$success)
-                $element["text"] = "<span style='color:darkred'>* " . $element["text"] . "</span>";
+            if (!$this->_textTranslator)
+                $this->_textTranslator = new MDIBL();
+            return $this->_textTranslator->TranslateElementTexts($elementTexts);
         }
 
         return $elementTexts;
