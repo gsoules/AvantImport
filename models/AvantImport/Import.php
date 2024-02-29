@@ -713,24 +713,20 @@ class AvantImport_Import extends Omeka_Record_AbstractRecord implements Zend_Acl
                     $this->_currentMap = $this->getColumnMaps()->map($row);
                     $map = &$this->_currentMap;
 
-                    $rowHasError = false;
+                    // Perform column validation.
                     if (plugin_is_active('MDIBL'))
                     {
                         if (!$this->helperPlugin)
                             $this->helperPlugin = new MDIBL();
                         $errorMessage = $this->helperPlugin->validateColumns($row);
                         if ($errorMessage)
-                        {
                             $this->_log($errorMessage, array($index), Zend_Log::ERR);
-                            $rowHasError = true;
-                        }
                     }
 
                     // Process returns the record if any, true if success but no
                     // record (delete), false in case of error and null in other
                     // cases (true skip).
-                    if (!$rowHasError)
-                        $record = $this->_manageFromMappedRow();
+                    $record = $this->_manageFromMappedRow();
 
                     if (empty($record)) {
                         $this->skipped_record_count++;
@@ -1821,6 +1817,9 @@ class AvantImport_Import extends Omeka_Record_AbstractRecord implements Zend_Acl
      */
     protected function _log($msg, $params = array(), $priority = Zend_Log::DEBUG)
     {
+        if ($priority == Zend_Log::DEBUG)
+            return;
+
         $avantImportLog = new AvantImport_Log();
         $avantImportLog->setArray(array(
             'import_id' => $this->id,
@@ -1900,7 +1899,17 @@ class AvantImport_Import extends Omeka_Record_AbstractRecord implements Zend_Acl
         {
             if (!$this->helperPlugin)
                 $this->helperPlugin = new MDIBL();
-            return $this->helperPlugin->TranslateElementTexts($elementTexts);
+            $elementTexts = $this->helperPlugin->TranslateElementTexts($elementTexts);
+            $identifier = $elementTexts[0]["text"];
+            foreach ($elementTexts as $elementText)
+            {
+                $text = $elementText["text"];
+                if (str_starts_with($text, "* "))
+                {
+                    $code = substr($text, 2);
+                    $this->_log("Unrecognized institution code '$code' for Identifier $identifier.", array(), Zend_Log::WARN);
+                }
+            }
         }
 
         return $elementTexts;
