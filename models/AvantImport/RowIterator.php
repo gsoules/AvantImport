@@ -113,6 +113,11 @@ class AvantImport_RowIterator implements SeekableIterator
         return $this->_currentRow;
     }
 
+    public function replaceCurrent($row)
+    {
+        return $this->_currentRow = $row;
+    }
+
     /**
      * Return the identifying key of the current element.
      * Similar to the key() function for arrays in PHP.
