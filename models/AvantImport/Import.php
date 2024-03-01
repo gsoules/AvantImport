@@ -709,19 +709,23 @@ class AvantImport_Import extends Omeka_Record_AbstractRecord implements Zend_Acl
                     // data, so the process here (and in all the plugin) may be
                     // simpler.
 
-                    // Map the row to identified columns.
-                    $this->_currentMap = $this->getColumnMaps()->map($row);
-                    $map = &$this->_currentMap;
-
                     // Perform column validation.
                     if (plugin_is_active('MDIBL'))
                     {
                         if (!$this->helperPlugin)
                             $this->helperPlugin = new MDIBL();
-                        $errorMessage = $this->helperPlugin->validateColumns($row);
-                        if ($errorMessage)
-                            $this->_log($errorMessage, array($index), Zend_Log::ERR);
+                        $error = $this->helperPlugin->validateColumns($row);
+                        if ($error)
+                        {
+                            $this->_log($error['message'], array(), Zend_Log::ERR);
+                            $row = $error['row'];
+                            $rows->replaceCurrent($row);
+                        }
                     }
+
+                    // Map the row to identified columns.
+                    $this->_currentMap = $this->getColumnMaps()->map($row);
+                    $map = &$this->_currentMap;
 
                     // Process returns the record if any, true if success but no
                     // record (delete), false in case of error and null in other
@@ -1903,15 +1907,11 @@ class AvantImport_Import extends Omeka_Record_AbstractRecord implements Zend_Acl
             $identifier = $elementTexts[0]["text"];
             foreach ($elementTexts as $elementText)
             {
-                $text = $elementText["text"];
-                if (str_starts_with($text, "* "))
-                {
-                    $code = substr($text, 2);
-                    $this->_log("Unrecognized institution code '$code' for Identifier $identifier.", array(), Zend_Log::WARN);
-                }
+                $message = $this->helperPlugin->invalidTranslationMessage($identifier, $elementText["text"]);
+                if ($message)
+                    $this->_log($message, array(), Zend_Log::ERR);
             }
         }
-
         return $elementTexts;
     }
 
