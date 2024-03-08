@@ -218,8 +218,10 @@ class AvantImportPlugin extends Omeka_Plugin_AbstractPlugin
      */
     public function filterAdminNavigationMain($nav)
     {
+        $label = plugin_is_active('MDIBL') ? 'MDIBL Import' : __('Import CSV File');
+
         $nav[] = array(
-            'label' => __('Import CSV File'),
+            'label' => $label,
             'uri' => url('avant-import'),
             'resource' => 'AvantImport_Index',
             'privilege' => 'index',

@@ -1902,8 +1902,8 @@ class AvantImport_Import extends Omeka_Record_AbstractRecord implements Zend_Acl
         if (plugin_is_active('MDIBL'))
         {
             if (!$this->helperPlugin)
-                $this->helperPlugin = new MDIBL();
-            $elementTexts = $this->helperPlugin->TranslateElementTexts($elementTexts);
+            $this->helperPlugin = new MDIBL();
+            $elementTexts = $this->helperPlugin->translateElementTexts($elementTexts);
             $identifier = $elementTexts[0]["text"];
             foreach ($elementTexts as $elementText)
             {

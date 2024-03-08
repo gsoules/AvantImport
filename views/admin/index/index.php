@@ -12,7 +12,7 @@
 <?php echo common('avantimport-nav'); ?>
 <div id="primary">
     <?php echo flash(); ?>
-    <h2><?php echo __('Step 1: Choose CSV file to import'); ?></h2>
+    <h2><?php if (!(plugin_is_active('MDIBL') && isset($_GET['mdibl-map']))) echo __('Step 1: Choose CSV file to import'); ?></h2>
     <?php echo $this->form; ?>
 </div>
 <script type="text/javascript">
