@@ -218,7 +218,19 @@ class AvantImportPlugin extends Omeka_Plugin_AbstractPlugin
      */
     public function filterAdminNavigationMain($nav)
     {
-        $label = plugin_is_active('MDIBL') ? 'MDIBL Import' : __('Import CSV File');
+        $label = __('Import CSV File');
+
+        if (plugin_is_active('MDIBL'))
+        {
+            $label = 'MDIBL Import';
+
+            $nav[] = array(
+                'label' => 'MDIBL Build Lists',
+                'uri' => url('avant-import') . "?" . MDIBL::BUILD_LISTS,
+                'resource' => 'AvantImport_Index',
+                'privilege' => 'index',
+            );
+        }
 
         $nav[] = array(
             'label' => $label,
@@ -226,6 +238,7 @@ class AvantImportPlugin extends Omeka_Plugin_AbstractPlugin
             'resource' => 'AvantImport_Index',
             'privilege' => 'index',
         );
+
         return $nav;
     }
 
