@@ -701,6 +701,7 @@ class AvantImport_Import extends Omeka_Record_AbstractRecord implements Zend_Acl
                 // because getColumnMaps() may add default values.
                 if ($rows->isEmpty()) {
                     $this->skipped_row_count++;
+
                     $this->_log('Skipped empty row #%s.', array($index), Zend_Log::NOTICE);
                 }
                 // Non empty row.
@@ -1310,6 +1311,8 @@ class AvantImport_Import extends Omeka_Record_AbstractRecord implements Zend_Acl
         $record,
         $action = AvantImport_ColumnMap_Action::DEFAULT_ACTION
     ) {
+        $dryrun = $_SESSION["AvantImport"]["dryrun"] == "1";
+
         $map = &$this->_currentMap;
 
         // Check action.
@@ -1403,17 +1406,20 @@ class AvantImport_Import extends Omeka_Record_AbstractRecord implements Zend_Acl
                     unset($recordMetadata[Builder_Item::TAGS]);
                 }
 
-                $record = update_item($record, $recordMetadata, $elementTexts);
+                if (!$dryrun)
+                    $record = update_item($record, $recordMetadata, $elementTexts);
                 break;
 
             case 'File':
                 $record->addElementTextsByArray($elementTexts);
-                $record->save();
+                if (!$dryrun)
+                    $record->save();
                 break;
 
             case 'Collection':
                 $recordMetadata = $this->_getCollectionMetadataFromMappedRow();
-                $record = update_collection($record, $recordMetadata, $elementTexts);
+                if (!$dryrun)
+                    $record = update_collection($record, $recordMetadata, $elementTexts);
                 break;
 
             default:
@@ -1424,7 +1430,7 @@ class AvantImport_Import extends Omeka_Record_AbstractRecord implements Zend_Acl
         $extraData = $map[AvantImport_ColumnMap::TYPE_EXTRA_DATA];
         $this->_setExtraData($record, $extraData, $action);
 
-        if ($recordType == 'Item') {
+        if ($recordType == 'Item' && !$dryrun) {
             $fileUrls = $map[AvantImport_ColumnMap::TYPE_FILE];
             // Check errors for files.
             $result = $this->_updateAttachedFilesOfItem($record, $fileUrls, false, $action);

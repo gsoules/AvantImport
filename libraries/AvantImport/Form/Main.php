@@ -23,27 +23,34 @@ class AvantImport_Form_Main extends Omeka_Form
         $this->setAttrib('id', 'avantimport');
         $this->setMethod('post');
 
-        $this->_addFileElement();
-
         $this->addElement('checkbox', 'records_are_public', array(
             'label' => __('Make items public'),
             'description' => __('Check to make imported items public'),
             'value' => (bool)get_option('avant_import_public') == true
         ));
 
+        $this->addElement('checkbox', 'dryrun', array(
+            'label' => __('Dry run'),
+            'description' => __('Analyze the import file without importing'),
+            'value' => true
+        ));
+
+        $this->_addFileElement();
+
+        $this->addDisplayGroup(
+            array(
+                'column_mapping',
+                'records_are_public',
+                'dryrun'
+            ),
+            'default_values'
+        );
+
         $this->addDisplayGroup(
             array(
                 'csv_file',
             ),
             'file_type'
-        );
-
-        $this->addDisplayGroup(
-            array(
-                'column_mapping',
-                'records_are_public'
-            ),
-            'default_values'
         );
 
         $submit = $this->createElement(
