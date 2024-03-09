@@ -184,7 +184,7 @@ class AvantImportPlugin extends Omeka_Plugin_AbstractPlugin
         $roles = $acl->getRoles();
 
         // Only allow admin and above to import.
-        $allowRoles = array('admin');
+        $allowRoles = array('super', 'admin');
         $allowRoles = array_intersect($roles, $allowRoles);
         if ($allowRoles) {
             $acl->allow($allowRoles, $resource);
