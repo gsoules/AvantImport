@@ -384,7 +384,7 @@ class AvantImport_Import extends Omeka_Record_AbstractRecord implements Zend_Acl
         }
         $this->status = self::STATUS_COMPLETED;
         $this->save();
-        $this->_log('Done importing "%4$s" (%5$d rows). Imported %1$d, updated %2$d.',
+        $this->_log('Done. "%4$s" (%5$d rows). Imported %1$d, updated %2$d.',
             array(
                 $this->getImportedRecordCount(),
                 $this->updated_record_count,
@@ -714,16 +714,25 @@ class AvantImport_Import extends Omeka_Record_AbstractRecord implements Zend_Acl
                     // data, so the process here (and in all the plugin) may be
                     // simpler.
 
-                    // Perform column validation.
-                    if (plugin_is_active('MDIBL'))
-                    {
+                    // Perform data validation.
+                    if (plugin_is_active('MDIBL')) {
                         if (!$this->helperPlugin)
                             $this->helperPlugin = new MDIBL();
-                        $error = $this->helperPlugin->validateColumns($row);
-                        if ($error)
-                        {
+                        $error = $this->helperPlugin->validateAuthorInstitutionMapping($row);
+                        if ($error) {
                             $this->_log($error['message'], array(), Zend_Log::ERR);
                             $row = $error['row'];
+                            $rows->replaceCurrent($row);
+                        }
+                        $warning = $this->helperPlugin->validateColumnValues($row);
+                        if ($warning) {
+                            $parts = explode(";", $warning['message']);
+                            foreach ($parts as $part) {
+                                if (!$part)
+                                    continue;
+                                $this->_log($part, array(), Zend_Log::WARN);
+                            }
+                            $row = $warning['row'];
                             $rows->replaceCurrent($row);
                         }
                     }
