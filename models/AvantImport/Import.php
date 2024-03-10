@@ -66,6 +66,7 @@ class AvantImport_Import extends Omeka_Record_AbstractRecord implements Zend_Acl
      private $_currentMap;
 
      private $helperPlugin = null;
+     private $dryrun;
 
     protected function _initializeMixins()
     {
@@ -357,9 +358,13 @@ class AvantImport_Import extends Omeka_Record_AbstractRecord implements Zend_Acl
      */
     public function start()
     {
+        $this->dryrun = $_SESSION["AvantImport"]["dryrun"] == "1";
+
         $this->status = self::STATUS_IN_PROGRESS;
         $this->_countRows();
         $this->save();
+        if ($this->dryrun)
+            $this->_log('Started dry run.', array(), Zend_Log::INFO);
         $this->_log('Started import.');
         $this->_importLoop($this->file_position);
         return !$this->isError();
@@ -379,15 +384,14 @@ class AvantImport_Import extends Omeka_Record_AbstractRecord implements Zend_Acl
         }
         $this->status = self::STATUS_COMPLETED;
         $this->save();
-        $this->_log('Completed importing %1$d items for the last batch part (total %2$d records, updated %3$d rows, skipped %4$d rows) from "%5$s" (%6$d rows).',
+        $this->_log('Done importing "%4$s" (%5$d rows). Imported %1$d, updated %2$d.',
             array(
-                $this->_importedCount,
                 $this->getImportedRecordCount(),
                 $this->updated_record_count,
                 $this->skipped_row_count,
                 $this->original_filename,
                 $this->row_count,
-            ));
+            ), Zend_Log::INFO);
         return true;
     }
 
@@ -687,7 +691,7 @@ class AvantImport_Import extends Omeka_Record_AbstractRecord implements Zend_Acl
             $slowProcess = get_option('avant_import_slow_process');
             $rows->skipInvalidRows(true);
             $this->_log('Running item import loop. Memory usage: %s.',
-                array(memory_get_usage()));
+                array(memory_get_usage()), Zend_Log::DEBUG);
             while ($rows->valid()) {
                 if ($slowProcess) {
                     sleep($slowProcess);
@@ -735,7 +739,8 @@ class AvantImport_Import extends Omeka_Record_AbstractRecord implements Zend_Acl
 
                     if (empty($record)) {
                         $this->skipped_record_count++;
-                        $this->_log('Skipped record on row #%s.', array($index), Zend_Log::WARN);
+                        if (!$this->dryrun)
+                            $this->_log('Skipped record on row #%s.', array($index), Zend_Log::WARN);
                     }
                     elseif ($record === AvantImport_ColumnMap_Action::ACTION_SKIP) {
                         $this->skipped_record_count++;
@@ -1085,7 +1090,8 @@ class AvantImport_Import extends Omeka_Record_AbstractRecord implements Zend_Acl
         // Empty fields should not be removed. Fields are not trimmed.
 
         try {
-            $record = $this->_insertItem($recordMetadata, $elementTexts, array(), $extraData);
+            if (!$this->dryrun)
+                $record = $this->_insertItem($recordMetadata, $elementTexts, array(), $extraData);
         } catch (Omeka_Validate_Exception $e) {
             $this->_log($e->getMessage(), array(), Zend_Log::ERR);
             return false;
@@ -1104,7 +1110,8 @@ class AvantImport_Import extends Omeka_Record_AbstractRecord implements Zend_Acl
         $identifier = $this->_getMappedValue(AvantImport_ColumnMap::TYPE_IDENTIFIER);
 
         // Makes it easy to unimport the record later.
-        $this->_recordImportedRecord('Item', $record->id, $identifier);
+        if (!$this->dryrun)
+            $this->_recordImportedRecord('Item', $record->id, $identifier);
         return $record;
     }
 
@@ -1311,8 +1318,6 @@ class AvantImport_Import extends Omeka_Record_AbstractRecord implements Zend_Acl
         $record,
         $action = AvantImport_ColumnMap_Action::DEFAULT_ACTION
     ) {
-        $dryrun = $_SESSION["AvantImport"]["dryrun"] == "1";
-
         $map = &$this->_currentMap;
 
         // Check action.
@@ -1406,19 +1411,19 @@ class AvantImport_Import extends Omeka_Record_AbstractRecord implements Zend_Acl
                     unset($recordMetadata[Builder_Item::TAGS]);
                 }
 
-                if (!$dryrun)
+                if (!$this->dryrun)
                     $record = update_item($record, $recordMetadata, $elementTexts);
                 break;
 
             case 'File':
                 $record->addElementTextsByArray($elementTexts);
-                if (!$dryrun)
+                if (!$this->dryrun)
                     $record->save();
                 break;
 
             case 'Collection':
                 $recordMetadata = $this->_getCollectionMetadataFromMappedRow();
-                if (!$dryrun)
+                if (!$this->dryrun)
                     $record = update_collection($record, $recordMetadata, $elementTexts);
                 break;
 
@@ -1430,7 +1435,7 @@ class AvantImport_Import extends Omeka_Record_AbstractRecord implements Zend_Acl
         $extraData = $map[AvantImport_ColumnMap::TYPE_EXTRA_DATA];
         $this->_setExtraData($record, $extraData, $action);
 
-        if ($recordType == 'Item' && !$dryrun) {
+        if ($recordType == 'Item' && !$this->dryrun) {
             $fileUrls = $map[AvantImport_ColumnMap::TYPE_FILE];
             // Check errors for files.
             $result = $this->_updateAttachedFilesOfItem($record, $fileUrls, false, $action);
@@ -1473,9 +1478,9 @@ class AvantImport_Import extends Omeka_Record_AbstractRecord implements Zend_Acl
                     $fileUrlPath,
                     array('ignore_invalid_files' => false));
             } catch (Omeka_File_Ingest_InvalidException $e) {
-                $msg = 'Invalid file URL "%s": %s';
-                $this->_log($msg, array($fileUrlPath, $e->getMessage()), Zend_Log::ERR);
-                if ($itemDelete) {
+                $msg = 'Cannot read file %s';
+                $this->_log($msg, array($fileUrlPath), Zend_Log::ERR);
+                if (!$this->dryrun && $itemDelete) {
                     $item->delete();
                 }
                 release_object($item);
