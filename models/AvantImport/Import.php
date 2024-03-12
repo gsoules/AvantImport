@@ -721,6 +721,8 @@ class AvantImport_Import extends Omeka_Record_AbstractRecord implements Zend_Acl
                         $error = $this->helperPlugin->validateAuthorInstitutionMapping($row);
                         if ($error) {
                             $this->_log($error['message'], array(), Zend_Log::ERR);
+
+                            // Replace the current row with the translated row.
                             $row = $error['row'];
                             $rows->replaceCurrent($row);
                         }
@@ -732,8 +734,6 @@ class AvantImport_Import extends Omeka_Record_AbstractRecord implements Zend_Acl
                                     continue;
                                 $this->_log($part, array(), Zend_Log::WARN);
                             }
-                            $row = $warning['row'];
-                            $rows->replaceCurrent($row);
                         }
                     }
 
