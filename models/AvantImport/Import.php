@@ -358,8 +358,7 @@ class AvantImport_Import extends Omeka_Record_AbstractRecord implements Zend_Acl
      */
     public function start()
     {
-        $this->dryrun = $_SESSION["AvantImport"]["dryrun"] == "1";
-
+        $this->dryrun = (bool)get_option('avant_import_dryrun');
         $this->status = self::STATUS_IN_PROGRESS;
         $this->_countRows();
         $this->save();
@@ -718,14 +717,6 @@ class AvantImport_Import extends Omeka_Record_AbstractRecord implements Zend_Acl
                     if (plugin_is_active('MDIBL')) {
                         if (!$this->helperPlugin)
                             $this->helperPlugin = new MDIBL();
-                        $error = $this->helperPlugin->validateAuthorInstitutionMapping($row);
-                        if ($error) {
-                            $this->_log($error['message'], array(), Zend_Log::ERR);
-
-                            // Replace the current row with the translated row.
-                            $row = $error['row'];
-                            $rows->replaceCurrent($row);
-                        }
                         $warning = $this->helperPlugin->validateColumnValues($row);
                         if ($warning) {
                             $parts = explode(";", $warning['message']);
@@ -734,6 +725,14 @@ class AvantImport_Import extends Omeka_Record_AbstractRecord implements Zend_Acl
                                     continue;
                                 $this->_log($part, array(), Zend_Log::WARN);
                             }
+                        }
+                        $error = $this->helperPlugin->validateAuthorInstitutionMapping($row);
+                        if ($error) {
+                            $this->_log($error['message'], array(), Zend_Log::ERR);
+
+                            // Replace the current row with the translated row.
+                            $row = $error['row'];
+                            $rows->replaceCurrent($row);
                         }
                     }
 
@@ -1922,15 +1921,8 @@ class AvantImport_Import extends Omeka_Record_AbstractRecord implements Zend_Acl
         if (plugin_is_active('MDIBL'))
         {
             if (!$this->helperPlugin)
-            $this->helperPlugin = new MDIBL();
+                $this->helperPlugin = new MDIBL();
             $elementTexts = $this->helperPlugin->translateElementTexts($elementTexts);
-            $identifier = $elementTexts[0]["text"];
-            foreach ($elementTexts as $elementText)
-            {
-                $message = $this->helperPlugin->invalidTranslationMessage($identifier, $elementText["text"]);
-                if ($message)
-                    $this->_log($message, array(), Zend_Log::ERR);
-            }
         }
         return $elementTexts;
     }
