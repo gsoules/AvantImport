@@ -88,7 +88,7 @@ class AvantImport_IndexController extends Omeka_Controller_AbstractActionControl
         $this->session->itemTypeId = "";
         $this->session->collectionId = "";
         $this->session->recordsArePublic = $form->getValue('records_are_public');
-        $this->session->dryrun = $form->getValue('dryrun');
+        $this->session->dryrun = $form->getValue('dryrun') == 1 ? "1" : "0";
         $this->session->recordsAreFeatured = "0";
         $this->session->elementsAreHtml = "0";
         $this->session->containsExtraData = "manual";
@@ -120,7 +120,7 @@ class AvantImport_IndexController extends Omeka_Controller_AbstractActionControl
         set_option('avant_import_html_elements', $this->session->elementsAreHtml);
         set_option('avant_import_extra_data', $this->session->containsExtraData);
         set_option('avant_import_public', (bool)$this->session->recordsArePublic);
-        set_option('avant_import_dryrun', (bool)$this->session->dryrun);
+        set_option('avant_import_dryrun', $this->session->dryrun);
 
         if ($this->session->containsExtraData == 'manual') {
             $this->_helper->redirector->goto('map-columns');
