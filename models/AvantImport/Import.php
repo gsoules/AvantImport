@@ -1910,17 +1910,6 @@ class AvantImport_Import extends Omeka_Record_AbstractRecord implements Zend_Acl
         return (isset($element['text']) && $element['text'] !== '');
     }
 
-    private function _translateElementTexts($elementTexts)
-    {
-        if (plugin_is_active('MDIBL'))
-        {
-            if (!$this->helperPlugin)
-                $this->helperPlugin = new MDIBL();
-            $elementTexts = $this->helperPlugin->translateElementTexts($elementTexts);
-        }
-        return $elementTexts;
-    }
-
     /**
      * Check if an element is an element without empty string.
      *
