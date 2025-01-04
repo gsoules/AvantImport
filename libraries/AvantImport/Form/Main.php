@@ -32,7 +32,8 @@ class AvantImport_Form_Main extends Omeka_Form
         $this->addElement('checkbox', 'dryrun', array(
             'label' => __('Analyze import file without importing'),
             'description' => __('Dry Run'),
-            'value' => true
+            'value' => false,
+            'disabled' => true
         ));
 
         $this->_addFileElement();
