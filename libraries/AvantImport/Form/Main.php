@@ -24,14 +24,14 @@ class AvantImport_Form_Main extends Omeka_Form
         $this->setMethod('post');
 
         $this->addElement('checkbox', 'records_are_public', array(
-            'label' => __('Make items public'),
-            'description' => __('Check to make imported items public'),
+            'label' => __('Check to make imported items public'),
+            'description' => __('Make items public'),
             'value' => (bool)get_option('avant_import_public') == true
         ));
 
         $this->addElement('checkbox', 'dryrun', array(
-            'label' => __('Dry run'),
-            'description' => __('Analyze the import file without importing'),
+            'label' => __('Analyze import file without importing'),
+            'description' => __('Dry Run'),
             'value' => true
         ));
 
@@ -95,7 +95,7 @@ class AvantImport_Form_Main extends Omeka_Form
         $filter = new Zend_Filter_File_Rename($this->_fileDestinationDir
                     . '/' . md5(mt_rand() + microtime(true)));
         $this->addElement('file', 'csv_file', array(
-            'label' => __('CSV file'),
+            'label' => __('Choose a CSV file to be imported'),
             'required' => true,
             'validators' => $fileValidators,
             'destination' => $this->_fileDestinationDir,
