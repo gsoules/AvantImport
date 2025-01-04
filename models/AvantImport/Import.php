@@ -1091,9 +1091,6 @@ class AvantImport_Import extends Omeka_Record_AbstractRecord implements Zend_Acl
         // Trim metadata to avoid spaces.
         $elementTexts = $this->_trimElementTexts($elementTexts);
 
-        // Translate a column's value to another value.
-        $elementTexts = $this->_translateElementTexts($elementTexts);
-
         $extraData = $map[AvantImport_ColumnMap::TYPE_EXTRA_DATA];
         // Empty fields should not be removed. Fields are not trimmed.
 
@@ -1350,9 +1347,6 @@ class AvantImport_Import extends Omeka_Record_AbstractRecord implements Zend_Acl
         if ($action == AvantImport_ColumnMap_Action::ACTION_ADD || $action == AvantImport_ColumnMap_Action::ACTION_REPLACE) {
             $elementTexts = array_values(array_filter($elementTexts, 'self::_removeEmptyElement'));
         }
-
-        // Translate a column's value to another value.
-        $elementTexts = $this->_translateElementTexts($elementTexts);
 
         // Overwrite existing element text values if wanted.
         if ($action == AvantImport_ColumnMap_Action::ACTION_UPDATE || $action == AvantImport_ColumnMap_Action::ACTION_REPLACE) {
