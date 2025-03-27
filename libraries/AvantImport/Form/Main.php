@@ -28,13 +28,13 @@ class AvantImport_Form_Main extends Omeka_Form
             'description' => __('Make items public'),
             'value' => (bool)get_option('avant_import_public') == true
         ));
-
-        $this->addElement('checkbox', 'dryrun', array(
-            'label' => __('Analyze import file without importing'),
-            'description' => __('Dry Run'),
-            'value' => false,
-            'disabled' => true
-        ));
+//
+//        $this->addElement('checkbox', 'dryrun', array(
+//            'label' => __('Analyze import file without importing'),
+//            'description' => __('Dry Run'),
+//            'value' => false,
+//            'disabled' => true
+//        ));
 
         $this->_addFileElement();
 
