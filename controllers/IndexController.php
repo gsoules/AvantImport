@@ -23,7 +23,7 @@ class AvantImport_IndexController extends Omeka_Controller_AbstractActionControl
         {
             $helperPlugin = new MDIBL();
             $helperPlugin->generateElementPairMappings();
-            $this->_helper->flashMessenger(__("Author/Institution lists built"), 'success');
+            $this->_helper->flashMessenger(__("Lists built for: Authors, Institutions, Species, and Common Names"), 'success');
             return;
         }
 
